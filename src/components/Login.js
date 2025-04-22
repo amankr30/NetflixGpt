@@ -1,6 +1,11 @@
 import { React, useState, useRef } from "react";
 import Header from "./Header";
 import { validateForm } from "../utils/validate";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
+import { auth } from "../utils/firebase";
 
 const Login = () => {
   const [isSignInForm, setisSignInForm] = useState(true);
@@ -37,8 +42,52 @@ const Login = () => {
       setErrorEmail(null);
       setErrorPassword(null);
       setErrorName(null);
-      // Perform sign in or sign up action here
       console.log("Form is valid. Proceeding with sign in/sign up.");
+
+      // Perform sign in or sign up action here
+      if (message) return;
+      if (!isSignInForm) {
+        console.log("Signing up with email:", email.current.value);
+        // Add your sign-up logic here
+
+        createUserWithEmailAndPassword(
+          auth,
+          email.current.value,
+          password.current.value
+        )
+          .then((userCredential) => {
+            // Signed up
+            const user = userCredential.user;
+            console.log("User signed up:", user);
+            // ...
+          })
+          .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            alert(errorMessage);
+            // ..
+          });
+      } else {
+        console.log("Signing in with email:", email.current.value);
+        // Add your sign-in logic here
+
+        signInWithEmailAndPassword(
+          auth,
+          email.current.value,
+          password.current.value
+        )
+          .then((userCredential) => {
+            // Signed in
+            const user = userCredential.user;
+            console.log("User signed in:", user);
+            // ...
+          })
+          .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            alert(errorMessage+" "+errorCode);
+          });
+      }
     }
   };
   const toggleSignInForm = () => {
